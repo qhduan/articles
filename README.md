@@ -5,6 +5,8 @@ DONE
 
 - [自然语言理解的应用 SNIPS-NLU](2020-02-12-NLU)
 - [让Tensorflow直接输入字符串，无需额外词表的3种方法](2020-04-08-string-tf)
+- [使用Voila把jupyter notebook变成app]()
+  - https://voila.readthedocs.io/en/stable/contribute.html#running-the-examples
 
 TODO
 
@@ -21,8 +23,6 @@ TODO
 - [未来的系统基础：FaaS+AI]()
   - 为什么FaaS，从租赁服务器到云计算到FaaS
   - 为什么AI，AI的特点
-- [使用Voila把jupyter notebook变成app]()
-  - https://voila.readthedocs.io/en/stable/contribute.html#running-the-examples
 - [使用code-server搭建类似tensorflow cerfiticate的考试环境]()
 - [我在办公室远程办公？]()
 - [NLP：文本相似度的各种事儿事儿]
