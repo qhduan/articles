@@ -8,6 +8,8 @@
 1. 文本以NodeJS为基础，给出一个文本分类例子œ
 1. 按照当前的情况，NodeJS版本其实更适合直接调用Python训练好的模型使用，因为加载速度和推理速度都比Python版本快的原因，如果不是必须要用GPU的话对于小模型更是可以适合配合FaaS等工具更好的实现云AI函数
 
+更多内容和代码可以参考[这个REPO https://github.com/qhduan/bert-model/](https://github.com/qhduan/bert-model/)
+
 ## TensorFlowJS/NodeJS的限制
 
 1. 一些算子不支持，例如python版本有的tf.strings.*下面的算子
