@@ -8,6 +8,7 @@ DONE
   - https://voila.readthedocs.io/en/stable/contribute.html#running-the-examples
 - [文本相似度，一件可大可小的事情](2020-04-22-text-similarity)
 - [我在办公室远程办公？四个远程写代码的工具](2020-06-20-Remote-Work)
+- [用NodeJS/TensorFlowJS调用BERT实现文本分类](2020-06-23-nodejs-bert)
 
 TODO
 
@@ -25,4 +26,3 @@ TODO
   - 为什么FaaS，从租赁服务器到云计算到FaaS
   - 为什么AI，AI的特点
 - [使用code-server搭建类似tensorflow cerfiticate的考试环境]()
-- [Tensorflow.js的应用]()
