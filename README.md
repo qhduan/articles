@@ -26,3 +26,4 @@ TODO
   - 为什么FaaS，从租赁服务器到云计算到FaaS
   - 为什么AI，AI的特点
 - [使用code-server搭建类似tensorflow cerfiticate的考试环境]()
+- [Serverless与FaaS简介，在Azure上搭建OpenFaaS的流水账]()
