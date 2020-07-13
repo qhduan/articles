@@ -27,3 +27,5 @@ TODO
   - 为什么AI，AI的特点
 - [使用code-server搭建类似tensorflow cerfiticate的考试环境]()
 - [Serverless与FaaS简介，在Azure上搭建OpenFaaS的流水账]()
+- [数据增强]()
+  - https://amitness.com/2020/05/data-augmentation-for-nlp/
