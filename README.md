@@ -14,8 +14,7 @@ TODO
 
 - [OCR的那点事儿]()
   - 中文OCR的问题，OCR的难点，OCR的未来发展，为什么OCR依然是一个很困难的问题
-  - Reference:
-    - https://mp.weixin.qq.com/s/B29wlVM4E3efxCywCy8Xnw
+  - ≈
 - [唯一URI的那些事儿]()
   - 为什么我们需要唯一URI
   - 可复现性：测试、机器学习
@@ -29,3 +28,4 @@ TODO
 - [Serverless与FaaS简介，在Azure上搭建OpenFaaS的流水账]()
 - [数据增强]()
   - https://amitness.com/2020/05/data-augmentation-for-nlp/
+- [深度学习与NLP算法训练中的一些技巧以及相应TensorFlow实现]()
