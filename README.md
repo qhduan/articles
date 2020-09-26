@@ -10,6 +10,7 @@
 - [我在办公室远程办公？四个远程写代码的工具](2020-06-20-Remote-Work)
 - [用NodeJS/TensorFlowJS调用BERT实现文本分类](2020-06-23-nodejs-bert)
 - [互联网工程师的发展](2020-08-26-engineer)
+- [机器学习101-从JAX的角度去实现](2020-09-26-ml101-jax)
 
 ## TODO
 
