@@ -2,23 +2,37 @@
 
 NLP Best Practice with TensorFlow
 
+本文会介绍TensorFlow 2.x在处理NLP任务中的一些工具和技巧，包括：
+
+- tf.keras.layers.experimental.preprocessing.TextVectorization
+- tf.strings
+- tf.data.experimental.bucket_by_sequence_length
+- BERT with strings
+- Gradients Clip
+
 ## TextVectorization
 
 这个特性的介绍，什么时候用，怎么用
+
+当前这个特性还是一个实验性特性，所以在experiment里面
 
 ## tf.strings
 
 tf.strings的作用，TextVectorization我们怎么自己实现
 
+首先strings可以提供如正则表达式这样的常用op支持，这就已经很强大了
+
+比如说你可以写一个纯粹用正则表达式写的模型，然后保存到TensorFlow的格式里面去，跟大家说这是深度学习
+
 ## bucket_by_sequence_length
 
 问题是什么？
 
-因为句子长度不一致
+因为句子长度不一致，而它们会可能随机到同一个batch里面去，也就是一个训练或者预测batch可能会有不同长度的句子。
 
 不一致会导致什么问题？
 
-浪费
+浪费。比如说batch中有两个句子，一个句子长度是1，一个句子长度是500。
 
 那么怎么解决？
 
