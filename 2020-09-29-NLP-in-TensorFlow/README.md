@@ -8,66 +8,151 @@ NLP Best Practice with TensorFlow
 - tf.strings
 - tf.data.experimental.bucket_by_sequence_length
 - BERT with strings
-- Gradients Clip
 
 ## TextVectorization
 
-这个特性的介绍，什么时候用，怎么用
+在完成NLP任务的时候，经常需要把文字（一般是字符串），转换为具体的词向量（或字向量）。
 
-当前这个特性还是一个实验性特性，所以在experiment里面
+或者说把文字转换为对应的词嵌入（Word Embedding/Token Embedding）。
 
-## tf.strings
+一般来说我们可能会这么做：制作一个词表，然后写程序把对应的词（字）映射到整数序号，然后就可以使用如`tf.keras.layers.Embedding`层，把这个整数映射到词嵌入。
 
-tf.strings的作用，TextVectorization我们怎么自己实现
+但是这种做法有一个问题，就是你需要一个额外的程序，和一份此表，才能把文字（字符串）转换为具体的整数序号。
 
-首先strings可以提供如正则表达式这样的常用op支持，这就已经很强大了
+因为需要额外的程序，比如需要把一个TensorFlow保存后的模型传给别人，也同时需要传输给别人这个程序和词表，显然麻烦的多。
 
-比如说你可以写一个纯粹用正则表达式写的模型，然后保存到TensorFlow的格式里面去，跟大家说这是深度学习
+有没有一种不需要额外程序和采标的方法呢？TensorFlow新加入的特性`TextVectorization`就是这样的功能。
 
-## bucket_by_sequence_length
+`TextVectorization`默认输入以空格为分割的字符串，同时它和其他TensorFlow/Keras的层不同，它需要先进行学习，具体的代码如下：
 
-问题是什么？
+```python
+x = [
+    '你 好 啊',
+    'I love you'
+]
+# 构建层
+text_vector = tf.keras.layers.experimental.preprocessing.TextVectorization()
+# 学习词表
+text_vector.adapt(x)
+# 我们可以通过这种方式获取词表（一个list）
+print(text_vector.get_vocabulary())
 
-因为句子长度不一致，而它们会可能随机到同一个batch里面去，也就是一个训练或者预测batch可能会有不同长度的句子。
+# 输出：
+# ['', '[UNK]', '好', '啊', '你', 'you', 'love', 'i']
 
-不一致会导致什么问题？
+# 可以看出结果已经
+print(text_vector(x))
 
-浪费。比如说batch中有两个句子，一个句子长度是1，一个句子长度是500。
+# 输出：
+# tf.Tensor(
+# [[4 2 3]
+#  [7 6 5]], shape=(2, 3), dtype=int64)
+```
 
-那么怎么解决？
+然后就可以把`text_vector`加入一个普通的TensorFlow模型
 
-分bucket
+```python
+model = tf.keras.Sequential([
+    text_vector,
+    tf.keras.layers.Embedding(
+        len(text_vector.get_vocabulary()),
+        32
+    ),
+    tf.keras.layers.Dense(2)
+])
 
-TensorFlow中的方法？
+print(model(x))
 
-用bucket_by_sequence_length
+# 输出：
+# <tf.Tensor: shape=(2, 3, 2), dtype=float32, numpy=
+# array([[[-0.01258635, -0.01506722],
+#         [-0.02729277, -0.04474692],
+#         [ 0.02955768,  0.00149873]],
+#        [[ 0.01346388,  0.01626211],
+#         [-0.03160518,  0.07346839],
+#         [-0.01061894, -0.0035725 ]]], dtype=float32)>
+```
 
-## Bert in TensorFlow 2.x
+## tf.strings是什么
 
-## Gradients Clip
+那么TextVectorization是怎么实现的呢？其实我们自己也可以实现这个功能，这就要说到TensorFlow的字符串类型和相关的各种算子。
 
-从经验上来看，NLP中很容易出现梯度爆炸的问题，尤其是像Albert这样的重复利用参数的情况。
+比如我们可以通过`tf.strings.split`来分割字符串
 
-个人总体估计有两个主要原因：
+```python
+x = [
+    '你 好 啊',
+    'I love you'
+]
+print(tf.strings.split(x))
 
-一个是NLP的参数是人为训练的而不是天然形成的，大家知道所谓的embedding方法其实是我们给每个词，或者说token，认为设定一个embedding，而不是像图片、声音那样有天然的embedding，因为这个embedding是人为得到的，所以也会训练，而这种训练结果的累计可能使embedding逐渐不稳定；
+# 输出：
+# <tf.RaggedTensor [[b'\xe4\xbd\xa0', b'\xe5\xa5\xbd', b'\xe5\x95\x8a'], [b'I', b'love', b'you']]>
+```
 
-其次一个原因可能是NLP竟然面对大量的softmax的情况，例如一次序列标注任务，就是tagging任务，一个句子可能上百个词的标签，每个都是一个softmax，而一个批次可能几十个或上百个这样的句子，就是成千个softmax。
-softmax相比sigmoid等分布一个优点就是，梯度回传比较大，模型更好训练。
-而在这里它也是一个缺点，就是回传梯度比较大，所以比较容易导致梯度爆炸。
+词表怎么实现呢，我们就需要使用`tf.lookup.StaticHashTable`
 
-解决梯度爆炸的直观表现，就是你发现训练中损失函数值一般是在震荡中下降的，但是你发现它竟然逐渐上涨，活着直接出现NaN的值。
+```python
+keys_tensor = tf.constant(['你', '好', '啊'])
+vals_tensor = tf.constant([1, 2, 3])
 
-解决的最简单的方法，一个是降低学习率，一个是增加梯度剪裁。
+table = tf.lookup.StaticHashTable(
+    tf.lookup.KeyValueTensorInitializer(keys_tensor, vals_tensor), -1)
+print(table.lookup(tf.constant(['你', '好'])))
 
-降低学习率当然是一个可选的方法，不过它主要的问题是同时也降低了整体的学习速度。
+# 输出：
+# tf.Tensor([1 2], shape=(2,), dtype=int32)
+```
 
-如果产生梯度爆炸的样本是比较多数，例如你发现无论怎么随机打乱样本，总是在训练几步之后都会梯度爆炸，这个就很可能是学习率太高了。
+## 数据对齐：bucket_by_sequence_length
 
-如果这样的情况不常发上，那更可能是少数的几个样本出错了，这个时候就需要考虑梯度裁剪。
+处理图片模型的时候，经常需要将图谱缩放到一个固定的大小，不过对于NLP任务来说，句子长度可是不同的，这虽然也可以通过增加padding的方式，即插入空字符的方式对齐。
 
-梯度裁剪就是使用clip norm和clip value两个函数，分别裁剪梯度的norm或绝对值。
+但是实际上这样的处理是有一定的问题的，就是效率损失。
 
-这两个可以都用，也可以只用一个。
+这种方式虽然能满足算法，但是实际上无论是LSTM/Transform，其实效率都和句子长度有关。
 
-个人经验来说，可以考虑只用clip value，因为用clip norm的话可能影响总体的学习速度。
+例如有4个句子，两个是长度2，两个是长度100，假设分成两个批次（batch），第一个批次是两个长度2的句子，第二批次是两个长度100的句子，那算法就只需要计算(2 + 100) 的算力。
+
+但是如果四个句子，把一个长度2的句子和一个长度100的句子凑一起，就需要在每个批次的长度2句子后面插入98个空字符，算法需要的算力就是（100 + 100）的算力。
+
+在TensorFlow中，可以使用`tf.data.Dataset.experimental.bucket_by_sequence_length`自动对齐输入数据。
+
+## 基于BERT的举例：更简易的BERT
+
+BERT模型实际上是有3个输入的：token，mask，type
+
+token是经过分词的字符串，转换为的整数序号。
+
+mask是输入长度的遮盖，是在一个batch有中不同长度的句子时的情况。
+
+type是0或1，是bert训练目标中的第二个NSP任务相对的type embedding所需的。
+
+不过对于大多数情况，其实BERT只需要一个输入，就是字符串。
+
+因为对于BERT很多单句/单文档模型的情况，type只需要单一的0就可以了。
+
+而mask也可以通过字符串本身计算出来，例如是否为空字符串。
+
+这个时候我们就可以使用以上提到的字符串方法，让BERT模型直接输入字符串，配合TensorFlow Hub，这就可以方便很多模型的计算。
+
+当然对于BERT的分词器，就很难简单的直接用上面提到的TextVectorization了，这里需要配合TensorFlow Text。
+
+最简单算法可以简化如下：
+
+```python
+# $ pip install tensorflow tensorflow-text tensorflow-hub
+import tensorflow as tf
+import tensorflow_text
+import tensorflow_hub as hub
+tokenizer = hub.load(
+    'https://code.aliyun.com/qhduan/bert_v4/raw/500019068f2c715d4b344c3e2216cef280a7f800/bert_tokenizer_chinese.tar.gz'
+)
+albert = hub.load(
+    'https://code.aliyun.com/qhduan/bert_v4/raw/500019068f2c715d4b344c3e2216cef280a7f800/albert_tiny.tar.gz'
+)
+out = albert(tokenizer(['你好']))
+
+assert out['sequence_output'].shape == (1, 2, 312)
+assert out['pooled_output'].shape == (1, 312)
+```
