@@ -11,6 +11,7 @@
 - [用NodeJS/TensorFlowJS调用BERT实现文本分类](2020-06-23-nodejs-bert)
 - [互联网工程师的发展](2020-08-26-engineer)
 - [机器学习101-从JAX的角度去实现](2020-09-26-ml101-jax)
+- [SPA类前后端完全分类应用使用Authing的云身份验证与单点登录](2021-01-09-authing)
 
 ## TODO
 
