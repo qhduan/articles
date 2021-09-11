@@ -13,6 +13,8 @@ mT5模型论文发布自2020年10月。
 
 本文主要介绍其中根据叠加prompt embedding进行soft-prompt-tuning如何实现。
 
+具体实现的主要思路参考了这篇2021年4月的论文[The Power of Scale for Parameter-Efficient Prompt Tuning](https://arxiv.org/pdf/2104.08691.pdf)而代码主要参考了[https://github.com/kipgparker/soft-prompt-tuning](https://github.com/kipgparker/soft-prompt-tuning)
+
 ## 什么是soft-prompt-tuning
 
 首先是prompt tuning，就是我们现在已经有了很多类似bert/gpt/t5这样的预训练模型，但是它们都很大，可能有几十亿或者几百亿个参数。
