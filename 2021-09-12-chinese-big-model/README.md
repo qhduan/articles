@@ -6,7 +6,7 @@
 
 论文：
 
-PM: A Large-scale Generative Chinese Pre-trained Language Model
+CPM: A Large-scale Generative Chinese Pre-trained Language Model
 
 https://arxiv.org/pdf/2012.00413.pdf
 
